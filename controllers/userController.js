@@ -22,14 +22,27 @@ const userController = {
         if (user) {
           req.flash('error_messages', '這個Email已經註冊過了。')
           return res.redirect('/signup')
+        } else {
+          User.create({ name, email, password })
+            .then(user => res.redirect('/signin'))
+            .catch(err => console.log(err))
         }
-        User.create({ name, email, password })
       })
-      .then(user => res.redirect('/signin'))
-      .catch(err => console.log(err))
   },
+  
   signInPage: (req, res) => {
     return res.render('signin')
+  },
+
+  signIn: (req, res) => {
+    req.flash('success_messages', '成功登入！')
+    res.redirect('/restaurants')
+  },
+
+  logout: (req, res) => {
+    req.flash('success_messages', '登出成功！')
+    req.logout()
+    res.redirect('/signin')
   }
 
 }
