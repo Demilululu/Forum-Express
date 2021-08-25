@@ -16,12 +16,12 @@ const adminController = {
   postRestaurant: (req, res) => {
     const { name, tel, address, opening_hours, description } = req.body
     if (!name) {
-      req.flash('error_messages', "name didn't exist")
+      req.flash('error_messages', "name is a required field")
       return res.redirect('back')
     }
     return Restaurant.create({ name, tel, address, opening_hours, description })
       .then((restaurant) => {
-        req.flash('success_messages', 'restaurant was successfully created')
+        req.flash('success_messages', 'restaurant has successfully been created')
         res.redirect('/admin/restaurants')
       })
   },
@@ -38,7 +38,7 @@ const adminController = {
       .then(restaurant => {
         return res.render('admin/create', { restaurant })
       })
-  }, 
+  },
   putRestaurant: (req, res) => {
     const { name, tel, address, opening_hours, description } = req.body
     if (!name) {
@@ -47,9 +47,20 @@ const adminController = {
     }
     return Restaurant.findByPk(req.params.id)
       .then((restaurant) => {
-        restaurant.update({name, tel, address, opening_hours, description})
+        restaurant.update({ name, tel, address, opening_hours, description })
           .then((restaurant) => {
-            req.flash('success_messages', 'restaurant was successfully to update')
+            req.flash('success_messages', 'restaurant has successfully been updated')
+            res.redirect('/admin/restaurants')
+          })
+      })
+  },
+  // Delete
+  deleteRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id)
+      .then((restaurant) => {
+        restaurant.destroy()
+          .then((restaurant) => {
+            req.flash('success_messages', 'restaurant has successfully been removed')
             res.redirect('/admin/restaurants')
           })
       })
