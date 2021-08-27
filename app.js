@@ -4,11 +4,15 @@ const session = require('express-session')
 const methodOverride = require('method-override')
 const flash = require('connect-flash')
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 const passport = require('./config/passport')
 
 const db = require('./models')
 const app = express()
-const port = process.env.PORT|| 3000
+const port = process.env.PORT || 3000
 
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
