@@ -15,9 +15,7 @@
     "logging": false
   },
   "production": {
-    "use_env_variable": "DATABASE_URL",
-    "dialect": "postgres",
-    "protocol": "postgres",
+    "use_env_variable": "CLEARDB_CHARCOAL_URL",
     "dialectOptions": {
       "ssl": {
         "rejectUnauthorized": false
