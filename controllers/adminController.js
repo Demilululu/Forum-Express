@@ -5,6 +5,7 @@ const Category = db.Category
 
 const fs = require('fs')
 const imgur = require('imgur-node-api')
+const category = require('../models/category')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const adminController = {
@@ -42,10 +43,17 @@ const adminController = {
   },
   // Create
   createRestaurant: (req, res) => {
-    return res.render('admin/create')
+    Category.findAll({
+      raw: true,
+      nest: true
+    })
+      .then(categories => {
+        return res.render('admin/create', { categories })
+      })
   },
+
   postRestaurant: (req, res) => {
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
     const { file } = req
 
     if (!name) {
@@ -57,7 +65,8 @@ const adminController = {
       imgur.upload(file.path, (err, img) => {
         return Restaurant.create({
           name, tel, address, opening_hours, description,
-          image: file ? img.data.link : null
+          image: file ? img.data.link : null,
+          CategoryId: categoryId
         })
           .then((restaurant) => {
             req.flash('success_messages', 'restaurant was created successfully')
@@ -65,7 +74,7 @@ const adminController = {
           })
       })
     } else {
-      Restaurant.create({ name, tel, address, opening_hours, description, image: null })
+      Restaurant.create({ name, tel, address, opening_hours, description, image: null, CategoryId: categoryId })
         .then((restaurant) => {
           req.flash('success_messages', 'restaurant was created successfully')
           res.redirect('/admin/restaurants')
@@ -85,11 +94,17 @@ const adminController = {
   editRestaurant: (req, res) => {
     return Restaurant.findByPk(req.params.id, { raw: true })
       .then(restaurant => {
-        return res.render('admin/create', { restaurant })
+        Category.findAll({
+          raw: true,
+          nest: true
+        })
+          .then(categories => {
+            return res.render('admin/create', { restaurant, categories })
+          })
       })
   },
   putRestaurant: (req, res) => {
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
     const { file } = req
 
     if (!name) {
@@ -103,7 +118,8 @@ const adminController = {
           .then((restaurant) => {
             restaurant.update({
               name, tel, address, opening_hours, description,
-              image: file ? img.data.link : restaurant.image
+              image: file ? img.data.link : restaurant.image,
+              CategoryId: categoryId
             })
               .then((restaurant) => {
                 req.flash('success_messages', 'restaurant was successfully to update')
@@ -114,7 +130,7 @@ const adminController = {
     } else {
       return Restaurant.findByPk(req.params.id)
         .then((restaurant) => {
-          restaurant.update({ name, tel, address, opening_hours, description, image: restaurant.image })
+          restaurant.update({ name, tel, address, opening_hours, description, image: restaurant.image, CategoryId: categoryId })
             .then((restaurant) => {
               req.flash('success_messages', 'restaurant was updated successfully ')
               res.redirect('/admin/restaurants')
