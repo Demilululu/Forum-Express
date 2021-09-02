@@ -5,7 +5,6 @@ const Category = db.Category
 
 const fs = require('fs')
 const imgur = require('imgur-node-api')
-const category = require('../models/category')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const adminController = {
@@ -30,7 +29,8 @@ const adminController = {
           })
       })
   },
-  // Restaurant Index
+  // Restaurants
+  // Index
   getRestaurants: (req, res) => {
     Restaurant.findAll({
       raw: true,
@@ -148,8 +148,8 @@ const adminController = {
             res.redirect('/admin/restaurants')
           })
       })
-  }
-
+  },
+  
 }
 
 module.exports = adminController
