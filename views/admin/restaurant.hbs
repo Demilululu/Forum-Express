@@ -19,7 +19,9 @@
   <hr>
 </div>
 
+{{#if restaurant.Comments}}
 <h3>所有評論：</h3>
+{{/if}}
 {{#each restaurant.Comments}}
 <form action="/comments/{{this.id}}?_method=DELETE" method="POST" style="float: right;">
   <button type="submit" class="btn btn-danger">Delete</button>

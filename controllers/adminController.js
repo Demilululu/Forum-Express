@@ -111,7 +111,7 @@ const adminController = {
               CategoryId: categoryId
             })
               .then(() => {
-                req.flash('success_messages', 'restaurant was successfully to update')
+                req.flash('success_messages', 'restaurant was updated successfully')
                 res.redirect('/admin/restaurants')
               })
           })

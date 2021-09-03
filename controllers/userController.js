@@ -3,7 +3,13 @@ const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
 
+const fs = require('fs')
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
+
+
 const userController = {
+  // Sing Up
   signUpPage: (req, res) => {
     return res.render('signup')
 
@@ -29,7 +35,7 @@ const userController = {
         }
       })
   },
-  
+  // Sign In
   signInPage: (req, res) => {
     return res.render('signin')
   },
@@ -39,10 +45,54 @@ const userController = {
     res.redirect('/restaurants')
   },
 
+  // Logout
   logout: (req, res) => {
     req.flash('success_messages', '登出成功！')
     req.logout()
     res.redirect('/signin')
+  },
+
+  // Profile
+  getUser: async (req, res) => {
+    const id = req.params.id
+    const userId = req.user.id
+    const user = await User.findByPk(id)
+
+    return res.render('profile', { userData: user.toJSON(), userId })
+  },
+  editUser: async (req, res) => {
+    const id = req.params.id
+    const userId = req.user.id
+
+    if (Number(id) !== Number(userId)) {
+      req.flash('error_messages', '只能編輯自己的profile。')
+      return res.redirect(`/users/${userId}`)
+    }
+
+    const user = await User.findByPk(id)
+    return res.render('edit', { user: user.toJSON() })
+  },
+  putUser: (req, res) => {
+    const { name, email } = req.body
+    const { file } = req
+    const id = req.params.id
+    let imageUrl = ''
+
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID);
+      imgur.upload(file.path, (err, img) => {
+        imageUrl = img.data.link
+      })
+    }
+    return User.findByPk(id)
+      .then((user) => {
+        user.update({ name, email, image: file ? imageUrl : user.image })
+          .then(() => {
+            req.flash('success_messages', 'user was updated successfully')
+            res.redirect(`/users/${id}`)
+          })
+      })
+
   }
 
 }
