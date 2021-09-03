@@ -2,6 +2,7 @@ const db = require('../models')
 const Restaurant = db.Restaurant
 const User = db.User
 const Category = db.Category
+const Comment = db.Comment
 
 const fs = require('fs')
 const imgur = require('imgur-node-api')
@@ -80,7 +81,7 @@ const adminController = {
   },
   // Detail
   getRestaurant: async (req, res) => {
-    const restaurant = await Restaurant.findByPk(req.params.id, { include: [Category] })
+    const restaurant = await Restaurant.findByPk(req.params.id, { include: [Category, { model: Comment, include: [User] }] })
 
     return res.render('admin/restaurant', { restaurant: restaurant.toJSON() })
   },
