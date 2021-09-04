@@ -51,6 +51,14 @@ const restController = {
     const comments = await Comment.findAll({ raw: true, nest: true, include: [User, Restaurant], limit: 10, order: [['createdAt', 'DESC']] })
 
     return res.render('feeds', { restaurants, comments })
+  },
+
+  getDashBoard: async(req, res) => {
+    const id = req.params.id
+    const restaurant = await Restaurant.findByPk(id, { include: [Category] })
+    const n_comments = await Comment.count({ where: { RestaurantId: id } })
+
+    return res.render('dashboard', {restaurant: restaurant.toJSON(), n_comments})
   }
 }
 module.exports = restController
