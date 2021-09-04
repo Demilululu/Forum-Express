@@ -8,25 +8,20 @@ const helpers = require('../_helpers');
 
 const commentController = {
   // Post
-  postComment: (req, res) => {
+  postComment: async (req, res) => {
     const { text } = req.body
     const RestaurantId = req.body.restaurantId
     const UserId = helpers.getUser(req).id
 
-    return Comment.create({ text, RestaurantId, UserId })
-      .then(() => res.redirect(`/restaurants/${RestaurantId}`))
+    await Comment.create({ text, RestaurantId, UserId })
+    return res.redirect(`/restaurants/${RestaurantId}`)
   },
   // Delete
-  deleteComment: (req, res) => {
+  deleteComment: async (req, res) => {
     const id = req.params.id
-    return Comment.findByPk(id)
-      .then((comment) => {
-        const restaurantId = comment.RestaurantId
-        comment.destroy()
-          .then(() => {
-            res.redirect(`/restaurants/${restaurantId}`)
-          })
-      })
+
+    await Comment.destroy({ where: { id } })
+    return res.redirect('back')
   }
 }
 

@@ -128,17 +128,14 @@ const adminController = {
     }
   },
   // Delete
-  deleteRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id)
-      .then((restaurant) => {
-        restaurant.destroy()
-          .then(() => {
-            req.flash('success_messages', 'restaurant was removed successfully')
-            res.redirect('/admin/restaurants')
-          })
-      })
-  },
+  deleteRestaurant: async (req, res) => {
+    const id = req.params.id
 
+    await Restaurant.destroy({ where: { id } })
+
+    req.flash('success_messages', 'restaurant was removed successfully')
+    return res.redirect('/admin/restaurants')
+  },
 }
 
 module.exports = adminController

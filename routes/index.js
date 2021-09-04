@@ -25,33 +25,38 @@ module.exports = (app, passport) => {
   }
 
   // Users
+  // signup
+  app.get('/signup', userController.signUpPage)
+  app.post('/signup', userController.signUp)
+
+  // signin
+  app.get('/signin', userController.signInPage)
+  app.post('/signin', passport.authenticate('local', { failureRedirect: '/signin', failureFlash: true }), userController.signIn)
+  app.get('/logout', userController.logout)
+
+  // restaurants
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
   app.get('/restaurants', authenticated, restController.getRestaurants)
   app.get('/restaurants/feeds', authenticated, restController.getFeeds)
   app.get('/restaurants/:id', authenticated, restController.getRestaurant)
   app.get('/restaurants/:id/dashboard', authenticated, restController.getDashBoard)
 
-  // Comments
+  // comments
   app.post('/comments', authenticated, commentController.postComment)
   app.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 
-  // Signup
-  app.get('/signup', userController.signUpPage)
-  app.post('/signup', userController.signUp)
-  
-  // Signin
-  app.get('/signin', userController.signInPage)
-  app.post('/signin', passport.authenticate('local', { failureRedirect: '/signin', failureFlash: true }), userController.signIn)
-  app.get('/logout', userController.logout)
-  
-  // Profile
+  // favorites
+  app.post('/favorite/:restaurantId', authenticated, userController.addFavorite)
+  app.delete('/favorite/:restaurantId', authenticated, userController.removeFavorite)
+
+  // profile
   app.get('/users/:id', authenticated, userController.getUser)
   app.get('/users/:id/edit', authenticated, userController.editUser )
   app.put('/users/:id', authenticated, upload.single('image'), userController.putUser)
 
   // Admin
-  app.get('/admin', authenticatedAdmin, (req, res) => res.redirect('/admin/restaurants'))
   // users
+  app.get('/admin', authenticatedAdmin, (req, res) => res.redirect('/admin/restaurants'))
   app.get('/admin/users', authenticatedAdmin, adminController.getUsers)
   app.put('/admin/users/:id/toggleAdmin', authenticatedAdmin, adminController.toggleAdmin)
 

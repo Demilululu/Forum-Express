@@ -4,11 +4,12 @@ const db = require('../models')
 const User = db.User
 const Comment = db.Comment
 const Restaurant = db.Restaurant
+const Favorite = db.Favorite
+
 const helpers = require('../_helpers');
 const fs = require('fs')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
-
 
 const userController = {
   // Sing Up
@@ -108,6 +109,21 @@ const userController = {
             })
         })
     }
+  },
+  // Favorites
+  addFavorite: async (req, res) => {
+    const UserId = helpers.getUser(req).id
+    const RestaurantId = req.params.restaurantId
+
+    await Favorite.create({ UserId, RestaurantId })
+    return res.redirect('back')
+  },
+  removeFavorite: async (req, res) => {
+    const UserId = helpers.getUser(req).id
+    const RestaurantId = req.params.restaurantId
+
+    await Favorite.destroy({ where: { UserId, RestaurantId } })
+    return res.redirect('back')
   }
 }
 module.exports = userController

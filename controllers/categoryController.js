@@ -1,6 +1,4 @@
 const db = require('../models')
-const Restaurant = db.Restaurant
-const User = db.User
 const Category = db.Category
 
 const categoryController = {
@@ -30,30 +28,27 @@ const categoryController = {
       .then(() => res.redirect('/admin/categories'))
   },
   // Edit
-  putCategory: (req, res) => {
+  putCategory: async (req, res) => {
     const { name } = req.body
     const id = req.params.id
 
     if (!name) {
       req.flash('error_message', 'name didn\'t exist')
       return res.redirect('back')
+    } else {
+      const category = await Category.findByPk(id)
+      category.name = name
+      await category.save()
     }
-    return Category.findByPk(id)
-      .then((category) => {
-        category.update({ name })
-          .then(() => res.redirect('/admin/categories'))
-      })
+    return res.redirect('/admin/categories')
   },
   // Delete
-  deleteCategory: (req, res) => {
+  deleteCategory: async (req, res) => {
     const id = req.params.id
-    return Category.findByPk(id)
-      .then((category) => {
-        category.destroy()
-          .then(() => res.redirect('/admin/categories'))
-      })
-  }
 
+    await Category.destroy({ where: { id } })
+    return res.redirect('/admin/categories')
+  }
 }
 
 module.exports = categoryController

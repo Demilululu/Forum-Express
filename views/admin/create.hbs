@@ -5,16 +5,17 @@
     {{/if}}
     <div class="form-group">
       <label for="name">Name</label>
-      <input type="text" class="form-control" name="name" id="name" placeholder="Enter name"
-        value="{{restaurant.name}}">
+      <input type="text" class="form-control" name="name" id="name" placeholder="Enter name" value="{{restaurant.name}}"
+        required>
     </div>
 
     <div class="form-group">
       <label for="categoryId">Category</label>
-      <select class="form-control" id="categoryId" name="categoryId">
-        <option value=""selected disabled hidden>Select category</option>
+      <select class="form-control" id="categoryId" name="categoryId" required>
+        <option value="" selected disabled hidden>Select category</option>
         {{#each categories}}
-        <option value="{{this.id}}" {{#ifCond this.id ../restaurant.CategoryId}} selected {{/ifCond}}>{{this.name}}</option>
+        <option value="{{this.id}}" {{#ifCond this.id ../restaurant.CategoryId}} selected {{/ifCond}}>{{this.name}}
+        </option>
         {{/each}}
       </select>
     </div>
