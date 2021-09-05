@@ -5,6 +5,7 @@ const Category = db.Category
 const User = db.User
 const Comment = db.Comment
 
+const helpers = require('../_helpers')
 const pageLimit = 10
 
 const restController = {
@@ -33,24 +34,28 @@ const restController = {
       ...r.dataValues,
       description: r.dataValues.description.substring(0, 50),
       categoryName: r.Category.name,
-      isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(r.id)
+      isFavorited: helpers.getUser(req).FavoritedRestaurants.map(d => d.id).includes(r.id),
+      isLiked: helpers.getUser(req).LikedRestaurants.map(d => d.id).includes(r.id)
     }))
-  
 
     res.render('restaurants', { restaurants, categories, categoryId, page, totalPage, prev, next })
   },
 
   getRestaurant: async (req, res) => {
     const id = req.params.id
+    const userId = helpers.getUser(req).id
     const restaurant = await Restaurant.findByPk(id, {
       include: [Category,
         { model: User, as: 'FavoritedUsers' },
+        { model: User, as: 'LikedUsers' },
         { model: Comment, include: [User] }]
     })
-    const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+
+    const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(userId)
+    const isLiked = restaurant.LikedUsers.map(d => d.id).includes(userId)
 
     await restaurant.increment(['viewCounts'])
-    return res.render('restaurant', { restaurant: restaurant.toJSON(), isFavorited })
+    return res.render('restaurant', { restaurant: restaurant.toJSON(), isFavorited, isLiked })
   },
 
   getFeeds: async (req, res) => {

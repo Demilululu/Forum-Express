@@ -5,6 +5,7 @@ const User = db.User
 const Comment = db.Comment
 const Restaurant = db.Restaurant
 const Favorite = db.Favorite
+const Like = db.Like
 
 const helpers = require('../_helpers');
 const fs = require('fs')
@@ -123,6 +124,21 @@ const userController = {
     const RestaurantId = req.params.restaurantId
 
     await Favorite.destroy({ where: { UserId, RestaurantId } })
+    return res.redirect('back')
+  },
+  // Likes
+  addLike: async (req, res) => {
+    const UserId = helpers.getUser(req).id
+    const RestaurantId = req.params.restaurantId
+
+    await Like.create({ UserId, RestaurantId })
+    return res.redirect('back')
+  },
+  removeLike: async (req, res) => {
+    const UserId = helpers.getUser(req).id
+    const RestaurantId = req.params.restaurantId
+
+    await Like.destroy({ where: { UserId, RestaurantId } })
     return res.redirect('back')
   }
 }
