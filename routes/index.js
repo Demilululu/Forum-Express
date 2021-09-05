@@ -33,6 +33,10 @@ module.exports = (app, passport) => {
   app.get('/signin', userController.signInPage)
   app.post('/signin', passport.authenticate('local', { failureRedirect: '/signin', failureFlash: true }), userController.signIn)
   app.get('/logout', userController.logout)
+  
+  // top
+  app.get('/users/top', authenticated, userController.getTopUser)
+  app.get('/restaurants/top', authenticated, restController.getTopRestaurant)
 
   // restaurants
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
@@ -57,8 +61,6 @@ module.exports = (app, passport) => {
   app.post('/following/:userId', authenticated, userController.addFollowing)
   app.delete('/following/:userId', authenticated, userController.removeFollowing)
 
-  // top
-  app.get('/users/top', authenticated, userController.getTopUser)
 
   // profile
   app.get('/users/:id', authenticated, userController.getUser)

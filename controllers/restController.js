@@ -6,6 +6,7 @@ const User = db.User
 const Comment = db.Comment
 
 const helpers = require('../_helpers')
+const user = require('../models/user')
 const pageLimit = 10
 
 const restController = {
@@ -71,6 +72,19 @@ const restController = {
     const n_comments = await Comment.count({ where: { RestaurantId: id } })
 
     return res.render('dashboard', { restaurant: restaurant.toJSON(), n_comments })
+  },
+  // Top
+  getTopRestaurant: async (req, res) => {
+    let restaurants = await Restaurant.findAll({ include: [{ model: User, as: 'FavoritedUsers' }] })
+    restaurants = restaurants.map(r => ({
+      ...r.dataValues,
+      description: r.dataValues.description.substring(0, 50),
+      FavoritedCount: r.FavoritedUsers.length,
+      isFavorited: helpers.getUser(req).FavoritedRestaurants.map(d => d.id).includes(r.id)
+    }))
+    restaurants.sort((a, b) => b.FavoritedCount - a.FavoritedCount)
+    restaurants = restaurants.slice(0, 10)
+    return res.render('topRestaurant', { restaurants })
   }
 }
 module.exports = restController
