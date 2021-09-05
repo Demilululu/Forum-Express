@@ -81,7 +81,9 @@ const adminController = {
   },
   // Detail
   getRestaurant: async (req, res) => {
-    const restaurant = await Restaurant.findByPk(req.params.id, { include: [Category, { model: Comment, include: [User] }] })
+    const restaurant = await Restaurant.findByPk(req.params.id, {
+      include: [Category, { model: Comment, include: [User] }]
+    })
 
     return res.render('admin/restaurant', { restaurant: restaurant.toJSON() })
   },

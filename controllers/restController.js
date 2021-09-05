@@ -1,4 +1,5 @@
 const db = require('../models')
+const { getUser } = require('./userController')
 const Restaurant = db.Restaurant
 const Category = db.Category
 const User = db.User
@@ -31,8 +32,10 @@ const restController = {
     const restaurants = restaurantsData.rows.map(r => ({
       ...r.dataValues,
       description: r.dataValues.description.substring(0, 50),
-      categoryName: r.Category.name
+      categoryName: r.Category.name,
+      isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(r.id)
     }))
+  
 
     res.render('restaurants', { restaurants, categories, categoryId, page, totalPage, prev, next })
   },
@@ -40,10 +43,14 @@ const restController = {
   getRestaurant: async (req, res) => {
     const id = req.params.id
     const restaurant = await Restaurant.findByPk(id, {
-      include: [Category, { model: Comment, include: [User] }]
+      include: [Category,
+        { model: User, as: 'FavoritedUsers' },
+        { model: Comment, include: [User] }]
     })
+    const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+
     await restaurant.increment(['viewCounts'])
-    return res.render('restaurant', { restaurant: restaurant.toJSON() })
+    return res.render('restaurant', { restaurant: restaurant.toJSON(), isFavorited })
   },
 
   getFeeds: async (req, res) => {
