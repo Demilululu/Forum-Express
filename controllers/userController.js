@@ -10,6 +10,7 @@ const Like = db.Like
 const helpers = require('../_helpers');
 const fs = require('fs')
 const imgur = require('imgur-node-api')
+const user = require('../models/user')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const userController = {
@@ -140,6 +141,16 @@ const userController = {
 
     await Like.destroy({ where: { UserId, RestaurantId } })
     return res.redirect('back')
+  },
+  getTopUser: async (req, res) => {
+    let users = await User.findAll({ include: [{ model: User, as: 'Followers' }] })
+    users = users.map(user => ({
+      ...user.dataValues,
+      FollowerCount: user.Followers.length,
+      isFollowed: helpers.getUser(req).Followings.map(d => d.id).includes(user.id)
+    }))
+    users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)
+    return res.render('topUser', { users })
   }
 }
 module.exports = userController
