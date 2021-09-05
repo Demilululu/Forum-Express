@@ -6,6 +6,7 @@ const Comment = db.Comment
 const Restaurant = db.Restaurant
 const Favorite = db.Favorite
 const Like = db.Like
+const Followship = db.Followship
 
 const helpers = require('../_helpers');
 const fs = require('fs')
@@ -142,6 +143,7 @@ const userController = {
     await Like.destroy({ where: { UserId, RestaurantId } })
     return res.redirect('back')
   },
+  // Followships
   getTopUser: async (req, res) => {
     let users = await User.findAll({ include: [{ model: User, as: 'Followers' }] })
     users = users.map(user => ({
@@ -151,6 +153,20 @@ const userController = {
     }))
     users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)
     return res.render('topUser', { users })
+  },
+  addFollowing: async (req, res) => {
+    const followerId = helpers.getUser(req).id
+    const followingId = req.params.userId
+
+    await Followship.create({ followerId, followingId })
+    return res.redirect('back')
+  },
+  removeFollowing: async (req, res) => {
+    const followerId = helpers.getUser(req).id
+    const followingId = req.params.userId
+
+    await Followship.destroy({ where: { followerId, followingId } })
+    return res.redirect('back')
   }
 }
 module.exports = userController
