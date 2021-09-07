@@ -8,6 +8,8 @@ const fs = require('fs')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
+const adminService = require('../services/adminService')
+
 const adminController = {
   // User Index
   getUsers: async (req, res) => {
@@ -39,10 +41,11 @@ const adminController = {
 
   // Restaurants
   // Index
-  getRestaurants: async (req, res) => {
-    const restaurants = await Restaurant.findAll({ raw: true, nest: true, include: [Category] })
-
-    return res.render('admin/restaurants', { restaurants })
+  getRestaurants: (req, res) => {
+    adminService.getRestaurants(req, res, (data) => {
+      return res.render('admin/restaurants', data)
+    })
+    
   },
   // Create
   createRestaurant: async (req, res) => {
