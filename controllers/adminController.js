@@ -131,13 +131,12 @@ const adminController = {
     }
   },
   // Delete
-  deleteRestaurant: async (req, res) => {
-    const id = req.params.id
-
-    await Restaurant.destroy({ where: { id } })
-
-    req.flash('success_messages', 'restaurant was removed successfully')
-    return res.redirect('/admin/restaurants')
+  deleteRestaurant: (req, res) => {
+    adminService.deleteRestaurant(req, res, data => {
+      if (data.status === 'success'){
+        return res.redirect('/admin/restaurants')
+      }
+    })
   },
 }
 

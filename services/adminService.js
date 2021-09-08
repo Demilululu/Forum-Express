@@ -18,6 +18,15 @@ const adminService = {
       include: [Category, { model: Comment, include: [User] }]
     })
     cb({ restaurant: restaurant.toJSON() })
-  }
+  },
+  deleteRestaurant: async (req, res, cb) => {
+    const id = req.params.id
+
+    await Restaurant.destroy({ where: { id } })
+
+    cb({status: 'success', message:''})
+  },
 }
+
+
 module.exports = adminService
