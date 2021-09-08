@@ -19,12 +19,38 @@ const adminService = {
     })
     cb({ restaurant: restaurant.toJSON() })
   },
+  postRestaurant: (req, res, cb) => {
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
+    const { file } = req
+
+    if (!name) {
+      cb({ status: 'error', message: 'name is a required field'})
+    }
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID);
+      imgur.upload(file.path, (err, img) => {
+        return Restaurant.create({
+          name, tel, address, opening_hours, description,
+          image: file ? img.data.link : null,
+          CategoryId: categoryId
+        })
+          .then(() => {
+            cb({ status: 'success', message: 'restaurant was created successfully'})
+          })
+      })
+    } else {
+      Restaurant.create({ name, tel, address, opening_hours, description, image: null, CategoryId: categoryId })
+        .then(() => {
+          cb({ status: 'success', message: 'restaurant was created successfully' })
+        })
+    }
+  },
   deleteRestaurant: async (req, res, cb) => {
     const id = req.params.id
 
     await Restaurant.destroy({ where: { id } })
 
-    cb({status: 'success', message:''})
+    cb({ status: 'success', message:'restaurant was removed successfully'})
   },
 }
 
