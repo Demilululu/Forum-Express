@@ -12,6 +12,12 @@ const adminService = {
   getRestaurants: async (req, res, cb) => {
     const restaurants = await Restaurant.findAll({ raw: true, nest: true, include: [Category] })
     cb({ restaurants })
+  },
+  getRestaurant: async (req, res, cb) => {
+    let restaurant = await Restaurant.findByPk(req.params.id, {
+      include: [Category, { model: Comment, include: [User] }]
+    })
+    cb({ restaurant: restaurant.toJSON() })
   }
 }
 module.exports = adminService
