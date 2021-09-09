@@ -44,6 +44,38 @@ const adminService = {
           cb({ status: 'success', message: 'restaurant was created successfully' })
         })
     }
+  }, 
+  putRestaurant: (req, res, cb) => {
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
+    const { file } = req
+
+    if (!name) {
+      cb({ status: 'error', message: 'name is a required field' })
+    }
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID);
+      imgur.upload(file.path, (err, img) => {
+        return Restaurant.findByPk(req.params.id)
+          .then((restaurant) => {
+            restaurant.update({
+              name, tel, address, opening_hours, description,
+              image: file ? img.data.link : restaurant.image,
+              CategoryId: categoryId
+            })
+              .then(() => {
+                cb({ status: 'success', message: 'restaurant was updated successfully' })
+              })
+          })
+      })
+    } else {
+      return Restaurant.findByPk(req.params.id)
+        .then((restaurant) => {
+          restaurant.update({ name, tel, address, opening_hours, description, image: restaurant.image, CategoryId: categoryId })
+            .then(() => {
+              cb({ status: 'success', message: 'restaurant was updated successfully' })
+            })
+        })
+    }
   },
   deleteRestaurant: async (req, res, cb) => {
     const id = req.params.id
