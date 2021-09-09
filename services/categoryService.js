@@ -25,6 +25,25 @@ const categoryService = {
       .then(() => {
         cb({ status: 'success', message: 'category was created successfully' })
       })
+  },
+  putCategory: async (req, res, cb) => {
+    const { name } = req.body
+    const id = req.params.id
+
+    if (!name) {
+      return cb({ status: 'error', message: 'name is a required field' })
+    } else {
+      const category = await Category.findByPk(id)
+      category.name = name
+      await category.save()
+    }
+    return cb({ status: 'success', message: 'category was updated successfully' })
+  },
+  deleteCategory: async (req, res, cb) => {
+    const id = req.params.id
+
+    await Category.destroy({ where: { id } })
+    return cb({ status: 'success', message: 'category was deleted successfully' })
   }
 }
 
