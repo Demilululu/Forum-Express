@@ -1,8 +1,6 @@
 const db = require('../models')
 const Category = db.Category
 
-
-
 const categoryService = {
   // Categories
   // Index
@@ -17,6 +15,16 @@ const categoryService = {
       cb({ categories, category: category.toJSON() })
     }
     cb({ categories })
+  },
+  postCategories: (req, res, cb) => {
+    const { name } = req.body
+    if (!name) {
+      return cb({ status: 'error', message: 'name is a required field' })
+    }
+    Category.create({ name })
+      .then(() => {
+        cb({ status: 'success', message: 'category was created successfully' })
+      })
   }
 }
 
