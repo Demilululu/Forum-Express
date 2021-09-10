@@ -9,7 +9,27 @@ const ExtractJwt = passportJWT.ExtractJwt
 const JwtStrategy = passportJWT.Strategy
 
 let userController = {
-  signIn: (req, res) => {
+  signUp: (req, res) => {
+    const { name, email, passwordCheck } = req.body
+    const password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null)
+
+    if (passwordCheck !== req.body.password) {
+      return res.json({ status: 'error', message: "password and confirm password not matched"})
+    }
+
+    User.findOne({ where: { email } })
+      .then(user => {
+        if (user) {
+          return res.json({ status: 'error', message: "This email has already registered" })
+        } else {
+          User.create({ name, email, password })
+            .then(() => {
+              return res.json({ status: 'success', message: "New account created successfully" })
+            })
+        }
+      })
+  }
+  ,signIn: (req, res) => {
     // 檢查必要資料
     const { email, password } = req.body
 
@@ -35,7 +55,8 @@ let userController = {
           user: { id, name, email, isAdmin }
         })
       })
-  }
+  },
+  
 }
 
 module.exports = userController
