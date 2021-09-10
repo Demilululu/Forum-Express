@@ -6,7 +6,7 @@ const categoryService = require('../services/categoryService')
 const categoryController = {
   // Categories
   // Index
-  getCategories: async (req, res) => {
+  getCategories: (req, res) => {
     categoryService.getCategories(req, res, data => {
       return res.render('admin/categories', data)
     })
@@ -24,7 +24,7 @@ const categoryController = {
     })
   },
   // Edit
-  putCategory: async (req, res) => {
+  putCategory: (req, res) => {
     categoryService.putCategory(req, res, data => {
       if (data['status'] === 'error') {
         req.flash('error_messages', data.message)
@@ -35,7 +35,7 @@ const categoryController = {
     })
   },
   // Delete
-  deleteCategory: async (req, res) => {
+  deleteCategory: (req, res) => {
     categoryService.deleteCategory(req, res, data => {
       if (data.status === 'success') {
         req.flash('success_messages', data.message)
