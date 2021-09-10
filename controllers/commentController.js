@@ -1,27 +1,21 @@
-const db = require('../models')
-const Restaurant = db.Restaurant
-const User = db.User
-const Comment = db.Comment
-
-const helpers = require('../_helpers');
-
+const commentService = require('../services/commentService')
 
 const commentController = {
   // Post
-  postComment: async (req, res) => {
-    const { text } = req.body
-    const RestaurantId = req.body.restaurantId
-    const UserId = helpers.getUser(req).id
-
-    await Comment.create({ text, RestaurantId, UserId })
-    return res.redirect(`/restaurants/${RestaurantId}`)
+  postComment: (req, res) => {
+    commentService.postComment(req, res, data => {
+      if(data.status === 'success'){
+        return res.redirect(`/restaurants/${data.RestaurantId}`)
+      }
+    })
   },
   // Delete
-  deleteComment: async (req, res) => {
-    const id = req.params.id
-
-    await Comment.destroy({ where: { id } })
-    return res.redirect('back')
+  deleteComment: (req, res) => {
+    commentService.deleteComment(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
   }
 }
 

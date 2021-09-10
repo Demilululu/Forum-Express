@@ -9,6 +9,8 @@ const upload = multer({ dest: 'temp/' })
 const adminController = require('../controllers/api/adminController')
 const categoryController = require('../controllers/api/categoryController')
 const userController = require('../controllers/api/userController')
+const commentController = require('../controllers/api/commentController')
+const restController = require('../controllers/api/restController')
 
 
 const authenticated = passport.authenticate('jwt', { session: false })
@@ -30,6 +32,18 @@ router.post('/signin', userController.signIn)
 
 // top
 router.get('/users/top', authenticated, userController.getTopUser)
+router.get('/restaurants/top', authenticated, restController.getTopRestaurant)
+
+// restaurants
+router.get('/', authenticated, (req, res) => res.redirect('/api/restaurants'))
+router.get('/restaurants', authenticated, restController.getRestaurants)
+router.get('/restaurants/feeds', authenticated, restController.getFeeds)
+router.get('/restaurants/:id', authenticated, restController.getRestaurant)
+router.get('/restaurants/:id/dashboard', authenticated, restController.getDashBoard)
+
+// comments
+router.post('/comments', authenticated, commentController.postComment)
+router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 
 // favorites
 router.post('/favorite/:restaurantId', authenticated, userController.addFavorite)
