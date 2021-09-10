@@ -65,7 +65,6 @@ router.delete('/like/:restaurantId', authenticated, userController.removeLike)
 router.post('/following/:userId', authenticated, userController.addFollowing)
 router.delete('/following/:userId', authenticated, userController.removeFollowing)
 
-
 // profile
 router.get('/users/:id', authenticated, userController.getUser)
 router.get('/users/:id/edit', authenticated, userController.editUser)

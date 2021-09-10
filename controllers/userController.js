@@ -14,8 +14,10 @@ const imgur = require('imgur-node-api')
 const user = require('../models/user')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
+const userService = require('../services/userService')
+
 const userController = {
-  // Sing Up
+  // Sign Up
   signUpPage: (req, res) => {
     return res.render('signup')
 
@@ -59,114 +61,76 @@ const userController = {
   },
 
   // Profile
-  getUser: async (req, res) => {
-    const id = req.params.id
-    const userId = helpers.getUser(req).id
-    const user = await User.findByPk(id)
-    const commentData = await Comment.findAndCountAll({
-      where: { UserId: id }, raw: true, nest: true, attributes: ['RestaurantId'],
-      include: { model: Restaurant, attributes: ['id', 'image'] }
-    })
-
-    return res.render('profile', {
-      userData: user.toJSON(), userId,
-      comment: commentData.rows, n_comments: commentData.count
+  getUser: (req, res) => {
+    userService.getUser(req, res, data => {
+      return res.render('profile', data)
     })
   },
-  editUser: async (req, res) => {
-    const id = req.params.id
-    const userId = helpers.getUser(req).id
-
-    if (Number(id) !== Number(userId)) {
-      req.flash('error_messages', '只能編輯自己的profile。')
-      return res.redirect(`/users/${userId}`)
-    }
-
-    const user = await User.findByPk(id)
-    return res.render('edit', { user: user.toJSON() })
+  editUser: (req, res) => {
+    userService.editUser(req, res, data => {
+      if (data.status === 'error') {
+        req.flash('error_messages', data.message)
+        return res.redirect(`/users/${data.userId}`)
+      }
+      return res.render('edit', data)
+    })
   },
   putUser: (req, res) => {
-    const { name, email } = req.body
-    const { file } = req
-    const id = req.params.id
-
-    if (file) {
-      imgur.setClientID(IMGUR_CLIENT_ID);
-      imgur.upload(file.path, (err, img) => {
-        return User.findByPk(id)
-          .then((user) => {
-            user.update({ name, email, image: file ? img.data.link : user.image })
-              .then(() => {
-                req.flash('success_messages', 'user was updated successfully')
-                res.redirect(`/users/${id}`)
-              })
-          })
-      })
-    } else {
-      return User.findByPk(id)
-        .then((user) => {
-          user.update({ name, email, image: user.image })
-            .then(() => {
-              req.flash('success_messages', 'user was updated successfully')
-              res.redirect(`/users/${id}`)
-            })
-        })
-    }
+    userService.putUser(req, res, data => {
+      req.flash('success_messages', data.message)
+      return res.redirect(`/users/${data.id}`)
+    })
   },
   // Favorites
-  addFavorite: async (req, res) => {
-    const UserId = helpers.getUser(req).id
-    const RestaurantId = req.params.restaurantId
-
-    await Favorite.create({ UserId, RestaurantId })
-    return res.redirect('back')
+  addFavorite: (req, res) => {
+    userService.addFavorite(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
   },
-  removeFavorite: async (req, res) => {
-    const UserId = helpers.getUser(req).id
-    const RestaurantId = req.params.restaurantId
-
-    await Favorite.destroy({ where: { UserId, RestaurantId } })
-    return res.redirect('back')
+  removeFavorite: (req, res) => {
+    userService.removeFavorite(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
   },
   // Likes
-  addLike: async (req, res) => {
-    const UserId = helpers.getUser(req).id
-    const RestaurantId = req.params.restaurantId
-
-    await Like.create({ UserId, RestaurantId })
-    return res.redirect('back')
+  addLike: (req, res) => {
+    userService.addLike(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
   },
-  removeLike: async (req, res) => {
-    const UserId = helpers.getUser(req).id
-    const RestaurantId = req.params.restaurantId
-
-    await Like.destroy({ where: { UserId, RestaurantId } })
-    return res.redirect('back')
+  removeLike: (req, res) => {
+    userService.removeLike(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
   },
   // Followships
-  getTopUser: async (req, res) => {
-    let users = await User.findAll({ include: [{ model: User, as: 'Followers' }] })
-    users = users.map(user => ({
-      ...user.dataValues,
-      FollowerCount: user.Followers.length,
-      isFollowed: helpers.getUser(req).Followings.map(d => d.id).includes(user.id)
-    }))
-    users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)
-    return res.render('topUser', { users })
-  },
-  addFollowing: async (req, res) => {
-    const followerId = helpers.getUser(req).id
-    const followingId = req.params.userId
+  getTopUser: (req, res) => {
+    userService.getTopUser(req, res, data => {
+      return res.render('topUser', data)
+    })
 
-    await Followship.create({ followerId, followingId })
-    return res.redirect('back')
   },
-  removeFollowing: async (req, res) => {
-    const followerId = helpers.getUser(req).id
-    const followingId = req.params.userId
-
-    await Followship.destroy({ where: { followerId, followingId } })
-    return res.redirect('back')
+  addFollowing: (req, res) => {
+    userService.addFollowing(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
+  },
+  removeFollowing: (req, res) => {
+    userService.removeFollowing(req, res, data => {
+      if (data.status === 'success') {
+        return res.redirect('back')
+      }
+    })
   }
 }
 module.exports = userController
